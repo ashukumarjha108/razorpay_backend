@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Razorpay Test Checkout</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+<h2>Razorpay Test Checkout</h2>
+
+<input type="number" id="amount" placeholder="Enter amount" />
+<button id="pay">Pay</button>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  document.getElementById("pay").onclick = async function () {
+    const amountInput = document.getElementById("amount");
+    const amount = Number(amountInput.value);
+
+    if (!amount || amount <= 0) {
+      alert("Enter a valid amount");
+      return;
+    }
+
+    // 1️⃣ Call backend to CREATE ORDER
+    const res = await fetch("/payments/initiate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount,
+        bookingId: "bk_101",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Failed to initiate payment");
+      return;
+    }
+
+    console.log("Order created:", data);
+
+    // 2️⃣ Open Razorpay using BACKEND values
+    const rzp = new Razorpay({
+      key: data.key,              // from backend
+      order_id: data.orderId,     // from backend
+      amount: data.amount * 100,  // backend amount
+      currency: data.currency,
+
+      handler: async function (response) {
+        console.log("Payment success:", response);
+
+        // 3️⃣ CONFIRM payment on backend
+        const confirmRes = await fetch("/payments/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(response),
+        });
+
+        const confirmData = await confirmRes.json();
+
+        if (confirmRes.ok) {
+          localStorage.setItem("receipt", JSON.stringify(confirmData.receipt));
+          window.location.href = "/receipt.html";
+        } else {
+          alert("Payment verification failed");
+        }
+      },
+
+      theme: { color: "#3399cc" },
+    });
+
+    rzp.open();
+  };
+</script>

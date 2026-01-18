@@ -7,6 +7,30 @@ import { razorpayWebhook } from "./controllers/webhook.controller";
 
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; font-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' https://checkout.razorpay.com"
+  );
+  next();
+});
+
+/* Body parsers */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* Static files */
+app.use("/assets", express.static("assets"));
+
+/* Routes */
+app.use("/api/payments", paymentRoutes);
+
+/* Server start */
+app.listen(3000, () => {
+  console.log("Server running");
+});
+
+
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.use(express.json());

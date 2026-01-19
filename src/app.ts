@@ -9,7 +9,35 @@ import helmet from "helmet";
 
 const app = express();
 
-app.use(
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'"], 
+//         scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"], 
+//         styleSrc: ["'self'", "'unsafe-inline'"], 
+//         imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
+//         connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
+//         frameSrc: ["'self'", "https://api.razorpay.com"],
+//         // Fix: Allow fonts from self, data URIs (base64), and Razorpay CDN
+//         fontSrc: [
+//           "'self'", 
+//           "data:", 
+//           "https://checkout.razorpay.com",
+//           "https://*.razorpay.com"
+//         ],
+//       },
+//     },
+//   })
+// );
+
+
+app.use((req, res, next) => {
+  // Don't apply CSP to checkout page to avoid conflicts with Razorpay's own CSP
+  if (req.path === '/checkout.html' || req.path === '/') {
+    return next();
+  }
+  
   helmet({
     contentSecurityPolicy: {
       directives: {
@@ -19,17 +47,11 @@ app.use(
         imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
         connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
         frameSrc: ["'self'", "https://api.razorpay.com"],
-        // Fix: Allow fonts from self, data URIs (base64), and Razorpay CDN
-        fontSrc: [
-          "'self'", 
-          "data:", 
-          "https://checkout.razorpay.com",
-          "https://*.razorpay.com"
-        ],
+        fontSrc: ["'self'", "data:", "https://checkout.razorpay.com", "https://*.razorpay.com"],
       },
     },
-  })
-);
+  })(req, res, next);
+});
 
 app.use(express.static(path.join(__dirname, "../public")));
 

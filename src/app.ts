@@ -9,35 +9,7 @@ import helmet from "helmet";
 
 const app = express();
 
-// app.use(
-//   helmet({
-//     contentSecurityPolicy: {
-//       directives: {
-//         defaultSrc: ["'self'"], 
-//         scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"], 
-//         styleSrc: ["'self'", "'unsafe-inline'"], 
-//         imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
-//         connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
-//         frameSrc: ["'self'", "https://api.razorpay.com"],
-//         // Fix: Allow fonts from self, data URIs (base64), and Razorpay CDN
-//         fontSrc: [
-//           "'self'", 
-//           "data:", 
-//           "https://checkout.razorpay.com",
-//           "https://*.razorpay.com"
-//         ],
-//       },
-//     },
-//   })
-// );
-
-
-app.use((req, res, next) => {
-  // Don't apply CSP to checkout page to avoid conflicts with Razorpay's own CSP
-  if (req.path === '/checkout.html' || req.path === '/') {
-    return next();
-  }
-  
+app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
@@ -47,11 +19,41 @@ app.use((req, res, next) => {
         imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
         connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
         frameSrc: ["'self'", "https://api.razorpay.com"],
-        fontSrc: ["'self'", "data:", "https://checkout.razorpay.com", "https://*.razorpay.com"],
+        // Fix: Allow fonts from self, data URIs (base64), and Razorpay CDN
+        fontSrc: [
+          "https://font.example.com",
+          "'self'", 
+          "data:", 
+          "https://checkout.razorpay.com",
+          "https://*.razorpay.com"
+            // Example font CDN
+        ],
       },
     },
-  })(req, res, next);
-});
+  })
+);
+
+
+// app.use((req, res, next) => {
+//   // Don't apply CSP to checkout page to avoid conflicts with Razorpay's own CSP
+//   if (req.path === '/checkout.html' || req.path === '/') {
+//     return next();
+//   }
+  
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'"], 
+//         scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"], 
+//         styleSrc: ["'self'", "'unsafe-inline'"], 
+//         imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
+//         connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
+//         frameSrc: ["'self'", "https://api.razorpay.com"],
+//         fontSrc: ["'self'", "data:", "https://checkout.razorpay.com", "https://*.razorpay.com", "https://font.example.com"],
+//       },
+//     },
+//   })(req, res, next);
+// });
 
 app.use(express.static(path.join(__dirname, "../public")));
 

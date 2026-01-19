@@ -11,51 +11,26 @@ const app = express();
 
 app.use(
   helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      
-      scriptSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "https://checkout.razorpay.com"
-      ],
-      
-      styleSrc: [
-        "'self'", 
-        "'unsafe-inline'", 
-        "https://checkout.razorpay.com",
-        "https://fonts.googleapis.com" // 1. Allow loading font CSS
-      ],
-      
-      imgSrc: [
-        "'self'", 
-        "data:", 
-        "https://*.razorpay.com"
-      ],
-      
-      connectSrc: [
-        "'self'", 
-        "https://api.razorpay.com", 
-        "https://lumberjack.razorpay.com"
-      ],
-      
-      frameSrc: [
-        "'self'", 
-        "https://api.razorpay.com"
-      ],
-      
-      fontSrc: [
-        "'self'", 
-        "data:", 
-        "https://checkout.razorpay.com", 
-        "https://*.razorpay.com",
-        "https://fonts.gstatic.com",  // 2. Critical: Actual Google Font files live here
-        "https://fonts.googleapis.com"
-      ],
+    contentSecurityPolicy: {
+      directives: {
+        // defaultSrc: ["'self'"], 
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"], 
+        styleSrc: ["'self'", "'unsafe-inline'"], 
+        imgSrc: ["'self'", "data:", "https://*.razorpay.com"], 
+        connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"], 
+        frameSrc: ["'self'", "https://api.razorpay.com"],
+        // Fix: Allow fonts from self, data URIs (base64), and Razorpay CDN
+        fontSrc: [
+          "https://font.example.com",
+          "'self'", 
+          "data:", 
+          "https://checkout.razorpay.com",
+          "https://*.razorpay.com"
+            // Example font CDN
+        ],
+      },
     },
-  },
-})
+  })
 );
 
 
@@ -93,10 +68,3 @@ app.post(
 );
 
 export default app;
-
-
-
-
-
-
-

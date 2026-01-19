@@ -67,4 +67,6 @@ app.post(
   razorpayWebhook
 );
 
+app.use('/', paymentRoutes);
+
 export default app;

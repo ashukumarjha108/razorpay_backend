@@ -62,6 +62,13 @@
         if (confirmRes.ok) {
           localStorage.setItem("receipt", JSON.stringify(confirmData.receipt));
           window.location.href = "/receipt.html";
+
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify(confirmData.receipt)
+            );
+          }
+
         } else {
           alert("Payment verification failed");
         }
